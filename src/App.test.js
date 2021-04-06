@@ -10,14 +10,18 @@ import userEvent from '@testing-library/user-event';
 //   expect(linkElement).toBeInTheDocument();
 // });
 
+function setup() {
+  return render(
+    <MemoryRouter>
+      <App />
+    </MemoryRouter>
+  );
+}
+
 // define header test suite
 describe('Header', () => {
   test('"How it works" link points to the correct page', () => {
-    render(
-      <MemoryRouter>
-        <App />
-      </MemoryRouter>
-    );
+    setup();
     // print out the dom
     // screen.debug();
 
@@ -39,3 +43,21 @@ describe('Header', () => {
     ).toBeInTheDocument();
   });
 });
+
+describe('Subreddit form', () => {
+  test('loads posts that are rendered on the page', async () => {
+    setup();
+
+    const subredditInput = screen.getByLabelText('r /');
+    userEvent.type(subredditInput, 'reactjs')
+
+    const submitButton = screen.getByRole('button', { name: /search/i });
+    userEvent.click(submitButton);
+
+    const loadingMessage = screen.getByText(/is loading/i);
+    expect(loadingMessage).toBeInTheDocument();
+
+    const numberOfTopPosts = await screen.findByText(/number of top posts:/i);
+    screen.debug(numberOfTopPosts);
+  });
+})
