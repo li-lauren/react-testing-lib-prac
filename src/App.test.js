@@ -28,5 +28,14 @@ describe('Header', () => {
     expect(
       screen.getByRole('heading', { name: /how it works/i })
     ).toBeInTheDocument();
+
+    const logoLink = screen.getByRole('link', { name: /logo/i });
+    screen.debug(logoLink);
+
+    userEvent.click(logoLink);
+
+    expect(
+      screen.getByRole('heading', { name: /find the top posts/i })
+    ).toBeInTheDocument();
   });
 });
