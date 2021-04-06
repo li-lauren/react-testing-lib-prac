@@ -3,6 +3,10 @@ import { render, screen } from '@testing-library/react';
 import App from './App';
 import { MemoryRouter } from 'react-router';
 import userEvent from '@testing-library/user-event';
+import fetchMock from 'jest-fetch-mock';
+import mockResponse from './__mocks__/subreddit-reactjs-response.json'
+
+fetchMock.enableMocks();
 
 // test('renders learn react link', () => {
 //   const { getByText } = render(<App />);
@@ -46,6 +50,7 @@ describe('Header', () => {
 
 describe('Subreddit form', () => {
   test('loads posts that are rendered on the page', async () => {
+    fetch.once(JSON.stringify(mockResponse));
     setup();
 
     const subredditInput = screen.getByLabelText('r /');
@@ -54,10 +59,11 @@ describe('Subreddit form', () => {
     const submitButton = screen.getByRole('button', { name: /search/i });
     userEvent.click(submitButton);
 
-    const loadingMessage = screen.getByText(/is loading/i);
-    expect(loadingMessage).toBeInTheDocument();
+    expect(screen.getByText(/is loading/i)).toBeInTheDocument();
 
-    const numberOfTopPosts = await screen.findByText(/number of top posts:/i);
-    screen.debug(numberOfTopPosts);
+    expect(await screen.findByText(/number of top posts: 25/i)).toBeInTheDocument();
+
+    // ensure the correct API endpoint was called
+    expect(fetch).toHaveBeenCalledWith('https://www.reddit.com/r/reactjs/top.json');
   });
 })
